@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut, FileText, MessageSquare, Loader2, Trash2 } from 'lucide-react';
 import Uploader from '../components/Uploader';
+import ChatInterface from '../components/ChatInterface';
 import { api } from '../lib/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deletingId, setDeletingId] = useState(null);
+  const [activeDocumentId, setActiveDocumentId] = useState(null);
 
   // Basic Auth Check
   useEffect(() => {
@@ -42,6 +44,9 @@ const Dashboard = () => {
     try {
       await api.delete(`/documents/${id}`);
       queryClient.invalidateQueries(['documents']);
+      if (activeDocumentId === id) {
+        setActiveDocumentId(null);
+      }
     } catch (err) {
       console.error('Failed to delete document', err);
     } finally {
@@ -80,7 +85,14 @@ const Dashboard = () => {
           {!isLoading && !isError && documents?.map((doc) => (
             <div 
               key={doc.id}
-              className="flex items-center justify-between p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 cursor-pointer hover-lift group"
+              onClick={() => {
+                if (doc.status === 'ready') setActiveDocumentId(doc.id);
+              }}
+              className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer hover-lift group transition-all ${
+                activeDocumentId === doc.id 
+                  ? 'bg-indigo-500/20 border-indigo-500/50 text-white' 
+                  : 'bg-indigo-500/5 border-indigo-500/20 text-indigo-300'
+              } ${doc.status !== 'ready' ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <div className="flex items-center gap-3 overflow-hidden">
                 <FileText size={18} className="shrink-0" />
@@ -114,23 +126,33 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <button 
-          onClick={handleLogout}
-          className="mt-auto flex items-center justify-center gap-2 w-full p-3 rounded-xl hover:bg-white/5 text-[var(--color-text-muted)] transition-colors"
-        >
-          <LogOut size={18} />
-          <span className="text-sm font-medium">Log Out</span>
-        </button>
+        {/* User Footer */}
+        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between px-2">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="h-8 w-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+              {localStorage.getItem('token') ? 'U' : '?'}
+            </div>
+            <div className="text-sm text-slate-300 truncate font-medium">My Account</div>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="glass-panel flex-1 rounded-2xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Subtle background glow effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="relative z-10 w-full flex flex-col items-center">
-          <Uploader onUploadSuccess={handleUploadSuccess} />
-        </div>
+      <div className="flex-1 rounded-2xl flex flex-col items-center justify-center relative h-full">
+        {activeDocumentId ? (
+          <ChatInterface documentId={activeDocumentId} />
+        ) : (
+          <div className="glass-panel w-full h-full rounded-2xl p-8 flex flex-col items-center justify-center">
+            <Uploader onUploadSuccess={handleUploadSuccess} />
+          </div>
+        )}
       </div>
     </div>
   );
