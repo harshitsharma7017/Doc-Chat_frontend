@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2 } from 'lucide-react';
+import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import PdfThumbnail from '../components/PdfThumbnail';
 import { api } from '../lib/api';
+import { formatFileSize } from '../lib/utils';
 
 const Workspace = () => {
   const navigate = useNavigate();
@@ -36,6 +37,14 @@ const Workspace = () => {
     }
   });
 
+  const { data: storageStats } = useQuery({
+    queryKey: ['storageStats'],
+    queryFn: async () => {
+      const response = await api.get('/documents/storage');
+      return response.data;
+    }
+  });
+
   // Filter documents based on search query and active filter
   const filteredDocs = React.useMemo(() => {
     let docs = documents || [];
@@ -62,12 +71,10 @@ const Workspace = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Today';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
-  const formatFileSize = (bytes) => {
-    if (!bytes) return '-- MB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -256,18 +263,26 @@ const Workspace = () => {
           <div className="w-[300px] border-l border-white/5 bg-[#121319] p-6 flex flex-col overflow-y-auto shrink-0">
             {/* Storage Widget */}
             <div className="bg-[#181a22] border border-white/5 rounded-2xl p-5 mb-6">
-              <h3 className="text-[15px] font-semibold text-white mb-4">Storage</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-[15px] font-semibold text-white">Storage</h3>
+                <button 
+                  onClick={() => navigate('/storage')}
+                  className="text-indigo-400 text-xs font-medium hover:text-indigo-300 transition-colors bg-indigo-500/10 px-2.5 py-1 rounded-lg"
+                >
+                  Detailed Info
+                </button>
+              </div>
               <div className="flex justify-between text-xs text-gray-400 mb-2">
                 <span>Used</span>
-                <span>45 GB</span>
+                <span>{storageStats ? formatFileSize(storageStats.usedBytes) : '-- MB'} of 10 MB</span>
               </div>
               {/* Progress Bar */}
-              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mb-6">
-                <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[60%] rounded-full"></div>
+              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mb-2">
+                <div 
+                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                  style={{ width: `${storageStats ? storageStats.percentage : 0}%` }}
+                ></div>
               </div>
-              <button className="text-indigo-400 text-xs font-medium w-full text-right hover:text-indigo-300 transition-colors">
-                Upgrade Plan
-              </button>
             </div>
 
             {/* Quick Stats */}
