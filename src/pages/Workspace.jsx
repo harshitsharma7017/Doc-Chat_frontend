@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info, Edit2 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import PdfThumbnail from '../components/PdfThumbnail';
+import DocumentCard from '../components/DocumentCard';
 import { api } from '../lib/api';
 import { formatFileSize } from '../lib/utils';
 
@@ -167,123 +167,19 @@ const Workspace = () => {
                   <p>No documents found matching your criteria.</p>
                 </div>
               ) : (
-                filteredDocs.map((doc) => {
-                  return (
-                  <div 
-                    key={doc.id} 
+                filteredDocs.map((doc) => (
+                  <DocumentCard 
+                    key={doc.id}
+                    doc={doc}
                     onClick={() => {
                       if (doc.status === 'ready') {
                         navigate('/dashboard', { state: { activeDocumentId: doc.id } });
                       }
                     }}
-                    className={`bg-[#181a22] border border-white/5 rounded-2xl overflow-hidden hover:border-indigo-500/30 transition-all group ${doc.status === 'ready' ? 'cursor-pointer' : 'cursor-default opacity-80'} flex flex-col h-[280px] relative`}
-                  >
-                    {/* Card Image Area */}
-                    <div className="h-[120px] bg-[#121319] relative overflow-hidden shrink-0 border-b border-white/5 flex items-center justify-center">
-                      {doc.status === 'ready' && doc.s3_url && (
-                        <div className="absolute inset-0 w-full h-[300px] pointer-events-none opacity-80 mix-blend-screen scale-90">
-                           <PdfThumbnail url={doc.s3_url} />
-                        </div>
-                      )}
-                      
-                      <div className={`absolute inset-0 z-10 ${doc.status === 'ready' ? 'opacity-70 bg-gradient-to-t from-[#181a22] to-indigo-900/40' : 'opacity-40 bg-gradient-to-br from-indigo-900/40 to-[#121319]'}`} />
-                      
-                      {/* Status Badge */}
-                      <div className="absolute top-3 left-3 z-20">
-                        {doc.status === 'ready' ? (
-                          <span className="bg-emerald-500/20 text-emerald-300 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-emerald-500/30">
-                            Ready
-                          </span>
-                        ) : doc.status === 'processing' ? (
-                          <span className="bg-orange-500/10 text-orange-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-orange-500/20 flex items-center gap-1.5">
-                            <Loader2 size={10} className="animate-spin" /> Processing
-                          </span>
-                        ) : (
-                          <span className="bg-red-500/10 text-red-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-red-500/20">
-                            Failed
-                          </span>
-                        )}
-                      </div>
-
-                      {doc.status === 'processing' && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-12 h-12 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin"></div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card Content */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex flex-col truncate pr-2 w-full">
-                          <h3 className="text-[15px] font-semibold text-gray-200 truncate leading-tight" title={doc.preferred_name || doc.filename}>
-                            {doc.preferred_name || doc.filename}
-                          </h3>
-                          {doc.preferred_name && (
-                            <span className="text-[10px] text-gray-500 truncate mt-0.5" title={doc.filename}>
-                              {doc.filename}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Type, processing state, and Actions */}
-                      <div className="flex items-center justify-between w-full text-xs text-gray-400 mb-auto mt-1 z-40 relative">
-                        {doc.status === 'processing' ? (
-                          <span className="flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1 h-1 bg-gray-500 rounded-full animate-ping"></span>
-                            Extracting Entities...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1.5">
-                            <FileText size={12} />
-                            {doc.filename.toLowerCase().endsWith('.pdf') ? 'PDF' : 'DOCX'}
-                          </span>
-                        )}
-
-                        {doc.status === 'ready' && (
-                          <div className="flex items-center gap-3">
-                            <button 
-                              onClick={(e) => handleRename(doc.id, doc.filename, doc.preferred_name, e)}
-                              className="text-gray-400 hover:text-indigo-400 transition-colors p-1"
-                              title="Rename Document"
-                            >
-                              <Edit2 size={15} />
-                            </button>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(doc.s3_url, '_blank');
-                              }}
-                              className="text-gray-400 hover:text-indigo-400 transition-colors p-1"
-                              title="Download"
-                            >
-                              <Download size={15} />
-                            </button>
-                            <button 
-                              onClick={(e) => handleDelete(doc.id, e)}
-                              disabled={deletingId === doc.id}
-                              className="text-red-500 hover:text-red-400 transition-colors p-1"
-                              title="Delete Document"
-                            >
-                              {deletingId === doc.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Meta footer */}
-                      <div className="flex items-center justify-between text-[11px] text-gray-500 mt-4 border-t border-white/5 pt-3">
-                        <div className="flex items-center gap-2">
-                          <span>{doc.status === 'processing' ? '--' : (doc.pages || '--')} Pages</span>
-                          <span>•</span>
-                          <span>{formatFileSize(doc.file_size)}</span>
-                        </div>
-                        <span>{formatDate(doc.created_at)}</span>
-                      </div>
-                    </div>
-                  </div>
-                )})
+                    onRename={(e) => handleRename(doc.id, doc.filename, doc.preferred_name, e)}
+                    onDelete={(e) => handleDelete(doc.id, e)}
+                  />
+                ))
               )}
             </div>
           </div>

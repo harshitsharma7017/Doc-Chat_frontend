@@ -112,7 +112,7 @@ const Dashboard = () => {
             <div className="relative pl-7">
               <div className="absolute -left-[14px] top-0 w-7 h-7 rounded-full bg-[#1c1e26] border-[3px] border-[#121319] flex items-center justify-center text-[10px] font-semibold text-gray-400">2</div>
               <h4 className="text-[13px] font-medium text-gray-200 mb-2 mt-0.5">Processing Phase</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">Lumina breaks down the text, charts, and tables into a semantic vector map.</p>
+              <p className="text-xs text-gray-500 leading-relaxed">Doc-Chat breaks down the text, charts, and tables into a semantic vector map.</p>
             </div>
             
             <div className="relative pl-7">

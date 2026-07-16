@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Workspace from './pages/Workspace';
 import StorageDetails from './pages/StorageDetails';
+import Settings from './pages/Settings';
 
 // Initialize TanStack Query
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/workspace" element={<Workspace />} />
             <Route path="/storage" element={<StorageDetails />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>
       </BrowserRouter>

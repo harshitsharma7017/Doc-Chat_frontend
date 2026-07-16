@@ -20,9 +20,18 @@ const PdfThumbnail = ({ url }) => {
   }
 
   return (
-    <div className="w-full h-[300px] overflow-hidden flex justify-center -mt-6">
+    <div className="w-full h-full overflow-hidden flex justify-center relative">
+      <style>{`
+        .pdf-cover-page canvas {
+          object-fit: cover !important;
+          object-position: top center !important;
+          width: 100% !important;
+          height: 100% !important;
+        }
+      `}</style>
       <Document
         file={url}
+        className="w-full h-full"
         loading={
           <div className="flex h-full items-center justify-center w-full">
              <Loader2 size={24} className="animate-spin text-indigo-500/50" />
@@ -35,10 +44,10 @@ const PdfThumbnail = ({ url }) => {
       >
         <Page 
           pageNumber={1} 
-          width={400} 
+          width={600} // Request high enough res for cover
           renderTextLayer={false} 
           renderAnnotationLayer={false}
-          className="shadow-xl"
+          className="w-full h-full pdf-cover-page"
         />
       </Document>
     </div>

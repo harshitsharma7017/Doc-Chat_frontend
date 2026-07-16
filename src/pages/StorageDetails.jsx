@@ -121,8 +121,17 @@ const StorageDetails = () => {
                         <tr key={doc.id} className="hover:bg-white/[0.02] transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <FileText size={16} className="text-indigo-400" />
-                              <span className="text-gray-200 font-medium">{doc.filename}</span>
+                              <FileText size={16} className="text-indigo-400 shrink-0" />
+                              <div className="flex flex-col truncate w-full max-w-[250px]">
+                                <span className="text-gray-200 font-medium truncate" title={doc.preferred_name || doc.filename}>
+                                  {doc.preferred_name || doc.filename}
+                                </span>
+                                {doc.preferred_name && (
+                                  <span className="text-[10px] text-gray-500 truncate mt-0.5" title={doc.filename}>
+                                    {doc.filename}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right">{formatFileSize(doc.text_bytes)}</td>

@@ -14,10 +14,19 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const [deletingId, setDeletingId] = useState(null);
 
   // Fetch Documents using TanStack Query
-  const { data: documents, isLoading, isError } = useQuery({
+  const { data: documents, isLoading: isLoadingDocs, isError: isErrorDocs } = useQuery({
     queryKey: ['documents'],
     queryFn: async () => {
       const response = await api.get('/documents');
+      return response.data;
+    }
+  });
+
+  // Fetch User Profile
+  const { data: profile } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: async () => {
+      const response = await api.get('/users/me');
       return response.data;
     }
   });
@@ -80,7 +89,7 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
             <FileText size={18} className="text-white" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-white tracking-wide">Lumina</h1>
+            <h1 className="text-sm font-bold text-white tracking-wide">Doc-Chat</h1>
             <p className="text-[10px] text-gray-400 tracking-wider">Document Intelligence</p>
           </div>
         </div>
@@ -126,18 +135,18 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
             </div>
             
             <div className="pl-9 pr-1 space-y-0.5 mt-1">
-              {isLoading && (
+              {isLoadingDocs && (
                 <div className="py-2 text-xs text-indigo-400 flex items-center">
                   <Loader2 className="animate-spin mr-2" size={14} /> Loading...
                 </div>
               )}
-              {isError && (
+              {isErrorDocs && (
                 <div className="py-2 text-xs text-red-400">Failed to load</div>
               )}
-              {!isLoading && !isError && documents?.length === 0 && (
+              {!isLoadingDocs && !isErrorDocs && documents?.length === 0 && (
                 <div className="py-2 text-xs text-gray-500">No chats yet.</div>
               )}
-              {!isLoading && !isError && documents?.map((doc) => (
+              {!isLoadingDocs && !isErrorDocs && documents?.map((doc) => (
                 <div 
                   key={doc.id}
                   onClick={() => { 
@@ -194,23 +203,54 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
             <Search size={18} />
             <span className="font-medium text-sm">Search</span>
           </div>
-          <div className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
-            <Settings size={18} />
-            <span className="font-medium text-sm">Settings</span>
-          </div>
+        <div className="pt-4 border-t border-white/5">
+          <a 
+            onClick={() => navigate('/settings')}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl cursor-pointer transition-all ${
+              location.pathname === '/settings' 
+                ? 'bg-indigo-500/10 text-indigo-400 font-medium' 
+                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+            }`}
+          >
+            <Settings size={20} />
+            <span className="text-sm">Settings</span>
+          </a>
+        </div>
         </div>
       </div>
 
       {/* Sidebar Footer Actions */}
       <div className="p-4 border-t border-white/5">
-        <div className="flex items-center justify-between px-2 cursor-pointer hover:bg-white/5 py-2 rounded-lg transition-colors" onClick={handleLogout} title="Logout">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full border border-gray-600 flex items-center justify-center bg-gray-800 shrink-0">
-              <User size={14} className="text-gray-400" />
+        <div className="flex items-center justify-between px-2 cursor-pointer hover:bg-white/5 py-2 rounded-lg transition-colors group">
+          <div 
+            className="flex items-center gap-3 flex-1 overflow-hidden pr-2"
+            onClick={() => navigate('/settings')}
+            title="Profile Settings"
+          >
+            <div className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center bg-gray-800 shrink-0 overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="User" className="w-full h-full object-cover" />
+              ) : (
+                <User size={16} className="text-gray-400" />
+              )}
             </div>
-            <span className="text-sm font-medium text-gray-300">Profile</span>
+            <div className="flex flex-col truncate">
+              <span className="text-[13px] font-medium text-gray-200 truncate">
+                {profile?.name || 'Profile'}
+              </span>
+              {profile?.email && (
+                <span className="text-[10px] text-gray-500 truncate">
+                  {profile.email}
+                </span>
+              )}
+            </div>
           </div>
-          <LogOut size={14} className="text-gray-500 hover:text-white transition-colors" />
+          <LogOut 
+            size={16} 
+            className="text-gray-500 hover:text-red-400 transition-colors shrink-0" 
+            onClick={handleLogout} 
+            title="Logout" 
+          />
         </div>
       </div>
     </div>
