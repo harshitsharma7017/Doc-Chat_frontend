@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Loader2, Edit2, Download, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
+import { FileText, Loader2, Edit2, Download, Trash2, MoreVertical, Image as ImageIcon, FolderPlus } from 'lucide-react';
 import PdfThumbnail from './PdfThumbnail';
 import { formatFileSize } from '../lib/utils';
 
-const DocumentCard = ({ doc, onClick, onRename, onDelete }) => {
+const DocumentCard = ({ doc, onClick, onRename, onDelete, onAddToCollection }) => {
   // Fix 7: Trim whitespace, collapse multiple spaces, and remove stray spaces before punctuation
   const rawTitle = doc.preferred_name || doc.filename;
   const displayTitle = rawTitle
@@ -60,7 +60,7 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete }) => {
   return (
     <div 
       onClick={isReady ? onClick : undefined}
-      className={`bg-[#181a22] border border-white/5 rounded-2xl overflow-hidden hover:border-indigo-500/30 transition-all group ${isReady ? 'cursor-pointer' : 'cursor-default opacity-80'} flex flex-col h-[320px] relative`}
+      className={`bg-[#181a22] border border-white/5 rounded-2xl overflow-hidden hover:border-indigo-500/30 transition-all group ${isReady ? 'cursor-pointer' : 'cursor-default opacity-80'} flex flex-col relative`}
     >
       {/* Card Image Area (Fix 3: 16/9 aspect ratio container) */}
       <div className="w-full aspect-video bg-[#121319] relative overflow-hidden shrink-0 border-b border-white/5">
@@ -109,7 +109,7 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete }) => {
         </div>
         
         {/* PDF Label Row */}
-        <div className="mb-auto">
+        <div>
           {isProcessing ? (
             <span className="flex items-center gap-2 text-gray-500 text-[15px] font-semibold tracking-wide">
               <span className="w-2 h-2 bg-gray-500 rounded-full animate-ping ml-0.5"></span>
@@ -135,7 +135,18 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete }) => {
 
         {/* Action Buttons Row */}
         {isReady && (
-          <div className="flex items-center gap-4 mt-auto mb-1 border-t border-white/5 pt-5">
+          <div className="flex items-center gap-4 mt-2 mb-1 border-t border-white/5 pt-4">
+            {/* Item 1: Add to Collection */}
+            {onAddToCollection && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onAddToCollection(doc.id); }}
+                className="w-10 h-10 rounded-full bg-[#252630] hover:bg-[#323340] flex items-center justify-center text-emerald-400 border border-white/5 transition-colors shadow-sm"
+                title="Add to Collection"
+              >
+                <FolderPlus size={14} strokeWidth={2.5} />
+              </button>
+            )}
+            
             {/* Item 2: Edit */}
             <button 
               onClick={onRename}

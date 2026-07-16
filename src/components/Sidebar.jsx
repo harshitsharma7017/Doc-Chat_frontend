@@ -73,6 +73,7 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
 
   // Check if current route is workspace
   const isWorkspace = location.pathname === '/workspace';
+  const isCollections = location.pathname === '/collections';
 
   return (
     <div className="w-64 border-r border-white/5 bg-[#121319] flex flex-col justify-between shrink-0 h-screen font-sans text-white">
@@ -117,7 +118,12 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
             <LayoutGrid size={18} />
             <span className="font-medium text-sm">Workspace</span>
           </div>
-          <div className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
+          <div 
+            onClick={() => navigate('/collections')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer ${
+              isCollections ? 'bg-indigo-500/10 text-indigo-300' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
             <Folder size={18} />
             <span className="font-medium text-sm">Collections</span>
           </div>
@@ -151,10 +157,10 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
                   key={doc.id}
                   onClick={() => { 
                     if (doc.status === 'ready') {
-                      if (isWorkspace) {
-                        navigate('/dashboard', { state: { activeDocumentId: doc.id } });
+                      if (onDocumentClick) {
+                        onDocumentClick(doc.id);
                       } else {
-                        if (onDocumentClick) onDocumentClick(doc.id);
+                        navigate('/dashboard', { state: { activeDocumentId: doc.id } });
                       }
                     }
                   }}

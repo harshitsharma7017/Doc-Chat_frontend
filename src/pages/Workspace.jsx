@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info, Edit2 } from 'lucide-react';
+import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info, Edit2, FolderPlus, Folder } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import DocumentCard from '../components/DocumentCard';
 import { api } from '../lib/api';
@@ -13,6 +13,7 @@ const Workspace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [deletingId, setDeletingId] = useState(null);
+  const [collectionModalDocId, setCollectionModalDocId] = useState(null);
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
@@ -59,6 +60,35 @@ const Workspace = () => {
       return response.data;
     }
   });
+
+  const { data: collections, isLoading: isLoadingCollections } = useQuery({
+    queryKey: ['collections'],
+    queryFn: async () => {
+      const response = await api.get('/collections');
+      return response.data;
+    }
+  });
+
+  const addToCollectionMutation = useMutation({
+    mutationFn: async ({ collectionId, documentId }) => {
+      const response = await api.post(`/collections/${collectionId}/documents`, { documentId });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['collections']);
+      setCollectionModalDocId(null);
+      alert('Document added to collection!');
+    },
+    onError: (err) => {
+      console.error(err);
+      alert('Failed to add document to collection.');
+    }
+  });
+
+  const handleAddToCollection = (collectionId) => {
+    if (!collectionModalDocId) return;
+    addToCollectionMutation.mutate({ collectionId, documentId: collectionModalDocId });
+  };
 
   // Filter documents based on search query and active filter
   const filteredDocs = React.useMemo(() => {
@@ -178,6 +208,7 @@ const Workspace = () => {
                     }}
                     onRename={(e) => handleRename(doc.id, doc.filename, doc.preferred_name, e)}
                     onDelete={(e) => handleDelete(doc.id, e)}
+                    onAddToCollection={(id) => setCollectionModalDocId(id)}
                   />
                 ))
               )}
@@ -232,6 +263,55 @@ const Workspace = () => {
 
         </div>
       </div>
+
+      {/* Add to Collection Modal */}
+      {collectionModalDocId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#121319] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
+            <div className="flex justify-between items-center p-6 border-b border-white/5 bg-[#15161d] shrink-0">
+              <h2 className="text-lg font-bold text-white tracking-tight">Add to Collection</h2>
+              <button onClick={() => setCollectionModalDocId(null)} className="text-gray-500 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              {isLoadingCollections ? (
+                <div className="flex justify-center py-8 text-indigo-400">
+                  <Loader2 className="animate-spin" size={24} />
+                </div>
+              ) : collections?.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FolderPlus size={32} className="mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">You don't have any collections yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {collections?.map(collection => (
+                    <button
+                      key={collection.id}
+                      onClick={() => handleAddToCollection(collection.id)}
+                      disabled={addToCollectionMutation.isPending}
+                      className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[#1a1b23] border border-transparent hover:border-white/5 transition-all text-left group disabled:opacity-50"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-[#1a1b23] group-hover:bg-[#252630] border border-white/5 flex items-center justify-center shrink-0">
+                        <Folder size={18} className="text-indigo-400" />
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <h4 className="text-sm font-semibold text-gray-200 truncate">{collection.name}</h4>
+                        <p className="text-xs text-gray-500">{collection.total_docs} Documents</p>
+                      </div>
+                      {addToCollectionMutation.isPending && addToCollectionMutation.variables?.collectionId === collection.id && (
+                        <Loader2 size={16} className="text-indigo-400 animate-spin" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

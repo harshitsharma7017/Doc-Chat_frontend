@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import Workspace from './pages/Workspace';
 import StorageDetails from './pages/StorageDetails';
 import Settings from './pages/Settings';
+import Collections from './pages/Collections';
+import CollectionDetails from './pages/CollectionDetails';
 
 // Initialize TanStack Query
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ function App() {
             <Route path="/workspace" element={<Workspace />} />
             <Route path="/storage" element={<StorageDetails />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/collections" element={<Collections />} />
+            <Route path="/collections/:id" element={<CollectionDetails />} />
           </Routes>
         </div>
       </BrowserRouter>
