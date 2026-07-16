@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, File, Loader2 } from 'lucide-react';
+import { UploadCloud, File, Loader2, FileText, Image as ImageIcon } from 'lucide-react';
 import { api } from '../lib/api';
 
 const Uploader = ({ onUploadSuccess }) => {
@@ -63,7 +63,6 @@ const Uploader = ({ onUploadSuccess }) => {
 
     try {
       // Send the file to our backend. 
-      // The Axios interceptor automatically attaches our JWT!
       const response = await api.post('/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -82,39 +81,45 @@ const Uploader = ({ onUploadSuccess }) => {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full">
       <div 
-        className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all ${
+        className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all ${
           isDragging 
-            ? 'border-indigo-400 bg-indigo-500/10' 
-            : 'border-white/10 hover:border-white/20 bg-black/20'
+            ? 'border-indigo-400 bg-indigo-500/5' 
+            : 'border-indigo-500/20 hover:border-indigo-400/40 bg-[#16171c]/50'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {!file ? (
-          <div className="space-y-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <UploadCloud size={40} className="text-indigo-400" />
+          <div className="space-y-6 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <div className="w-14 h-14 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-4 bg-white/5 hover:bg-white/10 transition-colors">
+              <UploadCloud size={24} className="text-white" />
             </div>
-            <h2 className="text-2xl font-bold">Upload a Document</h2>
-            <p className="text-[var(--color-text-muted)] text-sm px-8">
-              Drag and drop your PDF, DOCX, or TXT files here to start chatting with them. Max 10MB.
-            </p>
-            <button className="premium-button mt-4">
-              Browse Files
-            </button>
+            
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-2">Drag & drop files here</h2>
+              <p className="text-gray-400 text-sm">
+                or click to browse from your computer
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 text-xs font-medium text-gray-500 mt-6 pt-4">
+              <span className="flex items-center gap-1.5"><FileText size={14} /> PDF</span>
+              <span className="flex items-center gap-1.5"><FileText size={14} /> DOCX</span>
+              <span className="flex items-center gap-1.5"><FileText size={14} /> TXT</span>
+            </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-sm mx-auto">
             <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl text-left border border-white/10">
               <div className="bg-indigo-500/20 p-3 rounded-lg">
                 <File className="text-indigo-400" size={24} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{file.name}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">
+                <p className="font-medium text-sm text-white truncate">{file.name}</p>
+                <p className="text-xs text-gray-400">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
@@ -131,21 +136,20 @@ const Uploader = ({ onUploadSuccess }) => {
             <button 
               onClick={handleUpload}
               disabled={uploading}
-              className="premium-button w-full flex items-center justify-center gap-2"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none transition-colors"
             >
               {uploading ? (
                 <>
-                  <Loader2 className="animate-spin" size={18} />
-                  Uploading to S3...
+                  <Loader2 className="animate-spin mr-2" size={18} />
+                  Processing...
                 </>
               ) : (
-                'Upload Document'
+                'Upload Securely'
               )}
             </button>
           </div>
         )}
 
-        {/* Hidden file input triggered by clicking the dropzone */}
         <input 
           type="file" 
           ref={fileInputRef}
