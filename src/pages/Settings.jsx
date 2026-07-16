@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, Mail, Contact, Bell, MoreVertical, Share, Download, Loader2, X, Lock } from 'lucide-react';
+import { User, Mail, Contact, Bell, MoreVertical, Share, Download, Loader2, X, Lock, Eye, EyeOff } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { api } from '../lib/api';
 
@@ -36,7 +36,16 @@ const Settings = () => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+  };
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['userProfile'],
@@ -284,38 +293,65 @@ const Settings = () => {
                 <div className="flex-1 space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Password</label>
-                    <input 
-                      type="password" 
-                      name="currentPassword"
-                      value={passwordData.currentPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
-                      placeholder="Enter current password"
-                    />
+                    <div className="relative">
+                      <input 
+                        type={showPasswords.current ? "text" : "password"} 
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 pr-10 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
+                        placeholder="Enter current password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility('current')}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                      >
+                        {showPasswords.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-1 space-y-2">
                       <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">New Password</label>
-                      <input 
-                        type="password" 
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
-                        placeholder="Enter new password"
-                      />
+                      <div className="relative">
+                        <input 
+                          type={showPasswords.new ? "text" : "password"} 
+                          name="newPassword"
+                          value={passwordData.newPassword}
+                          onChange={handlePasswordChange}
+                          className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 pr-10 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
+                          placeholder="Enter new password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePasswordVisibility('new')}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                        >
+                          {showPasswords.new ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
                     </div>
                     <div className="flex-1 space-y-2">
                       <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Confirm New Password</label>
-                      <input 
-                        type="password" 
-                        name="confirmPassword"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
-                        placeholder="Confirm new password"
-                      />
+                      <div className="relative">
+                        <input 
+                          type={showPasswords.confirm ? "text" : "password"} 
+                          name="confirmPassword"
+                          value={passwordData.confirmPassword}
+                          onChange={handlePasswordChange}
+                          className="w-full bg-[#121319] border border-white/10 rounded-xl py-2.5 px-4 pr-10 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
+                          placeholder="Confirm new password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePasswordVisibility('confirm')}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                        >
+                          {showPasswords.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
