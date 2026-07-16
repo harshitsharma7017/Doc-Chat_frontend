@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { LogOut, FileText, MessageSquare, Loader2, Trash2 } from 'lucide-react';
+import { LogOut, FileText, MessageSquare, Loader2, Trash2, Plus } from 'lucide-react';
 import Uploader from '../components/Uploader';
 import ChatInterface from '../components/ChatInterface';
 import { api } from '../lib/api';
@@ -40,6 +40,10 @@ const Dashboard = () => {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation(); // prevent clicking the document
+    if (!window.confirm("Are you sure you want to permanently delete this document and its AI context?")) {
+      return;
+    }
+    
     setDeletingId(id);
     try {
       await api.delete(`/documents/${id}`);
@@ -54,13 +58,24 @@ const Dashboard = () => {
     }
   };
 
+  const activeDocument = documents?.find(d => d.id === activeDocumentId);
+
   return (
     <div className="flex h-[calc(100vh-80px)] gap-6 -mt-2">
       {/* Sidebar */}
       <div className="glass-panel w-72 rounded-2xl p-4 flex flex-col">
-        <div className="flex items-center gap-3 px-2 py-3 text-indigo-400 font-semibold mb-4 border-b border-white/10">
-          <MessageSquare size={20} />
-          <h2>Your Documents</h2>
+        <div className="flex items-center justify-between px-2 py-2 mb-4 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3 text-indigo-400 font-semibold">
+            <MessageSquare size={20} />
+            <h2>Your Documents</h2>
+          </div>
+          <button 
+            onClick={() => setActiveDocumentId(null)}
+            className="bg-indigo-500 hover:bg-indigo-400 text-white p-1.5 rounded-lg shadow-md transition-colors"
+            title="Upload New Document"
+          >
+            <Plus size={18} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
@@ -90,8 +105,8 @@ const Dashboard = () => {
               }}
               className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer hover-lift group transition-all ${
                 activeDocumentId === doc.id 
-                  ? 'bg-indigo-500/20 border-indigo-500/50 text-white' 
-                  : 'bg-indigo-500/5 border-indigo-500/20 text-indigo-300'
+                  ? 'bg-indigo-500/20 border-indigo-500/50 text-white shadow-lg' 
+                  : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
               } ${doc.status !== 'ready' ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <div className="flex items-center gap-3 overflow-hidden">
@@ -147,7 +162,7 @@ const Dashboard = () => {
       {/* Main Content Area */}
       <div className="flex-1 rounded-2xl flex flex-col items-center justify-center relative h-full">
         {activeDocumentId ? (
-          <ChatInterface documentId={activeDocumentId} />
+          <ChatInterface document={activeDocument} onClose={() => setActiveDocumentId(null)} />
         ) : (
           <div className="glass-panel w-full h-full rounded-2xl p-8 flex flex-col items-center justify-center">
             <Uploader onUploadSuccess={handleUploadSuccess} />
