@@ -83,9 +83,16 @@ const ChatInterface = ({ document, onClose }) => {
           <div className="bg-indigo-500 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20 shrink-0">
             <Bot size={20} />
           </div>
-          <div className="truncate">
-            <h2 className="font-bold text-white text-lg leading-tight">Document AI</h2>
-            <p className="text-xs text-indigo-300 truncate" title={document.filename}>{document.filename}</p>
+          <div className="truncate flex flex-col">
+            <h2 className="font-bold text-white text-lg leading-tight truncate" title={document.preferred_name || document.filename}>
+              {document.preferred_name || document.filename}
+            </h2>
+            {document.preferred_name && (
+              <p className="text-xs text-indigo-300/70 truncate" title={document.filename}>Original: {document.filename}</p>
+            )}
+            {!document.preferred_name && (
+              <p className="text-xs text-indigo-300 truncate">Document AI</p>
+            )}
           </div>
         </div>
         <button 

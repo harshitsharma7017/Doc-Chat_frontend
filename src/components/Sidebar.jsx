@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   LogOut, FileText, MessageSquare, Loader2, Trash2, 
-  LayoutGrid, Folder, Search, Settings, Upload, User, Plus
+  LayoutGrid, Folder, Search, Settings, Upload, User, Plus, Edit2
 } from 'lucide-react';
 import { api } from '../lib/api';
 
@@ -44,6 +44,21 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
       console.error('Failed to delete document', err);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleRename = async (id, currentFilename, currentPreferred, e) => {
+    e.stopPropagation();
+    const newName = window.prompt("Enter a new name for this document:", currentPreferred || currentFilename);
+    
+    if (newName && newName.trim() !== "" && newName !== currentPreferred) {
+      try {
+        await api.put(`/documents/${id}/rename`, { preferredName: newName.trim() });
+        queryClient.invalidateQueries(['documents']);
+      } catch (err) {
+        console.error('Failed to rename document', err);
+        alert("Failed to rename document.");
+      }
     }
   };
 
@@ -138,18 +153,38 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
                     activeDocumentId === doc.id && !isWorkspace ? 'bg-indigo-500/20 text-indigo-300' : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                   } ${doc.status !== 'ready' ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="flex items-center gap-2 overflow-hidden w-full pr-1">
                     {doc.status === 'processing' && <Loader2 size={12} className="animate-spin shrink-0 text-yellow-500" />}
                     {doc.status === 'failed' && <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />}
-                    <span className="text-[13px] truncate" title={doc.filename}>{doc.filename}</span>
+                    <div className="flex flex-col truncate w-full">
+                      <span className="text-[13px] truncate" title={doc.preferred_name || doc.filename}>
+                        {doc.preferred_name || doc.filename}
+                      </span>
+                      {doc.preferred_name && (
+                        <span className="text-[9px] text-gray-500 truncate" title={doc.filename}>
+                          {doc.filename}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <button 
-                    onClick={(e) => handleDelete(doc.id, e)}
-                    disabled={deletingId === doc.id}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity shrink-0"
-                  >
-                    {deletingId === doc.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-                  </button>
+                  
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity shrink-0">
+                    <button 
+                      onClick={(e) => handleRename(doc.id, doc.filename, doc.preferred_name, e)}
+                      className="p-1 hover:text-indigo-400 transition-colors"
+                      title="Rename"
+                    >
+                      <Edit2 size={12} />
+                    </button>
+                    <button 
+                      onClick={(e) => handleDelete(doc.id, e)}
+                      disabled={deletingId === doc.id}
+                      className="p-1 hover:text-red-400 transition-colors"
+                      title="Delete"
+                    >
+                      {deletingId === doc.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

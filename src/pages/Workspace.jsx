@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info } from 'lucide-react';
+import { Search, Bell, Share, Download, FileText, Loader2, MoreVertical, Trash2, X, Info, Edit2 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import PdfThumbnail from '../components/PdfThumbnail';
 import { api } from '../lib/api';
@@ -26,6 +26,21 @@ const Workspace = () => {
       console.error('Failed to delete document', err);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleRename = async (id, currentFilename, currentPreferred, e) => {
+    e.stopPropagation();
+    const newName = window.prompt("Enter a new name for this document:", currentPreferred || currentFilename);
+    
+    if (newName && newName.trim() !== "" && newName !== currentPreferred) {
+      try {
+        await api.put(`/documents/${id}/rename`, { preferredName: newName.trim() });
+        queryClient.invalidateQueries(['documents']);
+      } catch (err) {
+        console.error('Failed to rename document', err);
+        alert("Failed to rename document.");
+      }
     }
   };
 
@@ -200,9 +215,16 @@ const Workspace = () => {
                     {/* Card Content */}
                     <div className="p-4 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-[15px] font-semibold text-gray-200 truncate pr-2 leading-tight">
-                          {doc.filename}
-                        </h3>
+                        <div className="flex flex-col truncate pr-2 w-full">
+                          <h3 className="text-[15px] font-semibold text-gray-200 truncate leading-tight" title={doc.preferred_name || doc.filename}>
+                            {doc.preferred_name || doc.filename}
+                          </h3>
+                          {doc.preferred_name && (
+                            <span className="text-[10px] text-gray-500 truncate mt-0.5" title={doc.filename}>
+                              {doc.filename}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Type, processing state, and Actions */}
@@ -221,6 +243,13 @@ const Workspace = () => {
 
                         {doc.status === 'ready' && (
                           <div className="flex items-center gap-3">
+                            <button 
+                              onClick={(e) => handleRename(doc.id, doc.filename, doc.preferred_name, e)}
+                              className="text-gray-400 hover:text-indigo-400 transition-colors p-1"
+                              title="Rename Document"
+                            >
+                              <Edit2 size={15} />
+                            </button>
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
