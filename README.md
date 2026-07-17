@@ -84,4 +84,4 @@ The frontend will run on `localhost:5173`.
 
 ---
 
-*Built by Harshit Sharma — [portfolio](#) · [LinkedIn](https://linkedin.com/in/harshit-sharma-ab8886281)*
+*Built by Harshit Sharma — [portfolio](https://harshitfolio.vercel.app) · [LinkedIn](https://www.linkedin.com/in/harshit-sharma-backend-developer)*
