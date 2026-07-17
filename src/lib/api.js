@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance pointing to our Node.js backend
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || 'https://doc-chat-backend-git-705919183499.asia-south1.run.app/api',
+  baseURL: import.meta.env.VITE_BACKEND_URL
 });
 
 // Axios Interceptor: This runs automatically before EVERY request.

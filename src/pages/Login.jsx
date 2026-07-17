@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Mail, Lock, ArrowRight, FileText, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, FileText, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // OTP States for unverified users
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,14 +33,47 @@ const Login = () => {
       // Redirect to the dashboard
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to login');
+      if (err.response?.data?.unverified) {
+        // User hasn't verified their email yet. Trigger resend automatically (optional) or just show modal.
+        showToast('Please verify your email to continue.', 'info');
+        setShowOtpModal(true);
+      } else {
+        setError(err.response?.data?.error || 'Failed to login');
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setOtpError('');
+    setOtpLoading(true);
+
+    try {
+      const response = await api.post('/auth/verify-otp', { email, otp });
+      localStorage.setItem('token', response.data.token);
+      showToast('Email verified successfully!', 'success');
+      navigate('/dashboard');
+    } catch (err) {
+      setOtpError(err.response?.data?.error || 'Invalid OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError('');
+    try {
+      await api.post('/auth/resend-otp', { email });
+      showToast('Verification code resent! Please check your email.', 'info');
+    } catch (err) {
+      setOtpError(err.response?.data?.error || 'Failed to resend OTP');
+    }
+  };
+
   return (
-    <div className="min-h-[80vh] flex justify-center items-center px-4">
+    <div className="min-h-[80vh] flex justify-center items-center px-4 relative">
       <div className="bg-[#13141a] border border-white/5 p-8 rounded-2xl w-full max-w-[420px] shadow-2xl">
         {/* Logo */}
         <div className="flex justify-center mb-6">
@@ -69,6 +110,7 @@ const Login = () => {
               <input 
                 type="email" 
                 required
+                disabled={loading || showOtpModal}
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 sm:text-sm bg-white text-gray-900 placeholder-gray-500 outline-none transition-all"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -93,6 +135,7 @@ const Login = () => {
               <input 
                 type={showPassword ? "text" : "password"} 
                 required
+                disabled={loading || showOtpModal}
                 className="block w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 sm:text-sm bg-white text-gray-900 placeholder-gray-500 outline-none transition-all font-sans"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -100,6 +143,7 @@ const Login = () => {
               />
               <button
                 type="button"
+                disabled={loading || showOtpModal}
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -110,7 +154,7 @@ const Login = () => {
           
           <button 
             type="submit" 
-            disabled={loading}
+            disabled={loading || showOtpModal}
             className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 focus:ring-offset-[#13141a] transition-colors mt-2"
           >
             {loading ? 'Signing in...' : 'Sign in'}
@@ -162,6 +206,65 @@ const Login = () => {
           </Link>
         </p>
       </div>
+
+      {/* OTP Verification Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#13141a] border border-white/10 p-8 rounded-2xl w-full max-w-sm shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-2xl font-bold mb-2 text-center text-white">Verify Email</h3>
+            <p className="text-gray-400 text-sm text-center mb-6">
+              Please enter the 6-digit code sent to <span className="font-semibold text-white">{email}</span>.
+            </p>
+
+            {otpError && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-2 rounded-lg mb-4 text-sm text-center">
+                {otpError}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div>
+                <input 
+                  type="text" 
+                  required
+                  className="block w-full py-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-[#1c1d24] text-white text-center text-2xl tracking-[0.5em] font-mono outline-none"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="••••••"
+                  maxLength={6}
+                  autoFocus
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={otpLoading || otp.length !== 6}
+                className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 transition-colors"
+              >
+                {otpLoading ? <Loader2 size={18} className="animate-spin" /> : 'Verify & Sign in'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button 
+                onClick={handleResendOtp}
+                className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
+              >
+                Didn't receive the code? Resend
+              </button>
+            </div>
+            
+            <div className="mt-4 text-center">
+              <button 
+                onClick={() => setShowOtpModal(false)}
+                className="text-xs text-gray-500 hover:text-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
