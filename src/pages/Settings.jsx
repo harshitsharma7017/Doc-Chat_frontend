@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, Mail, Contact, Bell, MoreVertical, Share, Download, Loader2, X, Lock, Eye, EyeOff } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { api } from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
 
 const PREDEFINED_AVATARS = [
   "https://api.dicebear.com/7.x/bottts/svg?seed=Gamer&backgroundColor=transparent",
@@ -25,6 +26,7 @@ const PREDEFINED_AVATARS = [
 
 const Settings = () => {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -73,11 +75,11 @@ const Settings = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['userProfile'], data);
-      alert('Profile updated successfully!');
+      showToast('Profile updated successfully!', 'success');
     },
     onError: (err) => {
       console.error(err);
-      alert('Failed to update profile. Please try again.');
+      showToast('Failed to update profile. Please try again.', 'error');
     }
   });
 
@@ -95,12 +97,12 @@ const Settings = () => {
       return res.data;
     },
     onSuccess: () => {
-      alert('Password updated successfully!');
+      showToast('Password updated successfully!', 'success');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     },
     onError: (err) => {
       console.error(err);
-      alert(err.response?.data?.error || 'Failed to update password. Please try again.');
+      showToast(err.response?.data?.error || 'Failed to update password. Please try again.', 'error');
     }
   });
 
@@ -110,7 +112,7 @@ const Settings = () => {
 
   const handlePasswordSave = () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      return alert("New passwords do not match.");
+      return showToast("New passwords do not match.", 'error');
     }
     passwordMutation.mutate({
       currentPassword: passwordData.currentPassword,

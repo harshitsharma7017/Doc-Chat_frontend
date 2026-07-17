@@ -6,10 +6,14 @@ import Sidebar from '../components/Sidebar';
 import DocumentCard from '../components/DocumentCard';
 import { api } from '../lib/api';
 import { formatFileSize } from '../lib/utils';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 const Workspace = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [deletingId, setDeletingId] = useState(null);
@@ -17,7 +21,13 @@ const Workspace = () => {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to permanently delete this document?")) return;
+    const isConfirmed = await confirm({
+      title: "Delete Document",
+      message: "Are you sure you want to permanently delete this document?",
+      isDanger: true,
+      confirmText: "Delete"
+    });
+    if (!isConfirmed) return;
     
     setDeletingId(id);
     try {
@@ -32,7 +42,13 @@ const Workspace = () => {
 
   const handleRename = async (id, currentFilename, currentPreferred, e) => {
     e.stopPropagation();
-    const newName = window.prompt("Enter a new name for this document:", currentPreferred || currentFilename);
+    const newName = await confirm({
+      title: "Rename Document",
+      message: "Enter a new name for this document:",
+      withInput: true,
+      defaultValue: currentPreferred || currentFilename,
+      confirmText: "Save"
+    });
     
     if (newName && newName.trim() !== "" && newName !== currentPreferred) {
       try {
@@ -40,7 +56,7 @@ const Workspace = () => {
         queryClient.invalidateQueries(['documents']);
       } catch (err) {
         console.error('Failed to rename document', err);
-        alert("Failed to rename document.");
+        showToast("Failed to rename document.", 'error');
       }
     }
   };
@@ -77,11 +93,11 @@ const Workspace = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(['collections']);
       setCollectionModalDocId(null);
-      alert('Document added to collection!');
+      showToast('Document added to collection!', 'success');
     },
     onError: (err) => {
       console.error(err);
-      alert('Failed to add document to collection.');
+      showToast('Failed to add document to collection.', 'error');
     }
   });
 

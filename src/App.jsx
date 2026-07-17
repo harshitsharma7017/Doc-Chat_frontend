@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider } from './contexts/ToastContext';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -17,8 +19,10 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className="min-h-screen bg-[var(--color-background)] text-white">
+      <ToastProvider>
+        <ConfirmProvider>
+          <BrowserRouter>
+            <div className="min-h-screen bg-[var(--color-background)] text-white">
           <Routes>
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -35,8 +39,10 @@ function App() {
             <Route path="/collections" element={<Collections />} />
             <Route path="/collections/:id" element={<CollectionDetails />} />
           </Routes>
-        </div>
-      </BrowserRouter>
+            </div>
+          </BrowserRouter>
+        </ConfirmProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

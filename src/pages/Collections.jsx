@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Share, History, FolderPlus, MoreVertical, Folder, Loader2, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { api } from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
 
 const Collections = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   
@@ -35,7 +37,7 @@ const Collections = () => {
     },
     onError: (err) => {
       console.error(err);
-      alert('Failed to create collection.');
+      showToast('Failed to create collection.', 'error');
     }
   });
 

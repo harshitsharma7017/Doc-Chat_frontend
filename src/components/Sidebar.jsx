@@ -6,11 +6,15 @@ import {
   LayoutGrid, Folder, Search, Settings, Upload, User, Plus, Edit2
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const [deletingId, setDeletingId] = useState(null);
 
   // Fetch Documents using TanStack Query
@@ -38,9 +42,14 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to permanently delete this document and its AI context?")) {
-      return;
-    }
+    const isConfirmed = await confirm({
+      title: "Delete Document",
+      message: "Are you sure you want to permanently delete this document and its AI context?",
+      isDanger: true,
+      confirmText: "Delete"
+    });
+    
+    if (!isConfirmed) return;
     
     setDeletingId(id);
     try {
@@ -58,7 +67,13 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
 
   const handleRename = async (id, currentFilename, currentPreferred, e) => {
     e.stopPropagation();
-    const newName = window.prompt("Enter a new name for this document:", currentPreferred || currentFilename);
+    const newName = await confirm({
+      title: "Rename Document",
+      message: "Enter a new name for this document:",
+      withInput: true,
+      defaultValue: currentPreferred || currentFilename,
+      confirmText: "Save"
+    });
     
     if (newName && newName.trim() !== "" && newName !== currentPreferred) {
       try {
@@ -66,7 +81,7 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
         queryClient.invalidateQueries(['documents']);
       } catch (err) {
         console.error('Failed to rename document', err);
-        alert("Failed to rename document.");
+        showToast("Failed to rename document.", 'error');
       }
     }
   };

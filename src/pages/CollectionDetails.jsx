@@ -5,11 +5,15 @@ import { Search, Bell, Share, History, FolderPlus, ArrowLeft, Loader2, FileText,
 import Sidebar from '../components/Sidebar';
 import DocumentCard from '../components/DocumentCard';
 import { api } from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 const CollectionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -43,7 +47,7 @@ const CollectionDetails = () => {
     },
     onError: (err) => {
       console.error(err);
-      alert('Failed to add document to collection.');
+      showToast('Failed to add document to collection.', 'error');
     }
   });
 
@@ -78,13 +82,20 @@ const CollectionDetails = () => {
     },
     onError: (err) => {
       console.error(err);
-      alert('Failed to remove document from collection.');
+      showToast('Failed to remove document from collection.', 'error');
     }
   });
 
-  const handleRemoveFromCollection = (documentId, e) => {
+  const handleRemoveFromCollection = async (documentId, e) => {
     e.stopPropagation();
-    if (window.confirm("Remove this document from the collection? (It will not be deleted from your workspace)")) {
+    const isConfirmed = await confirm({
+      title: "Remove Document",
+      message: "Remove this document from the collection? (It will not be deleted from your workspace)",
+      isDanger: true,
+      confirmText: "Remove"
+    });
+    
+    if (isConfirmed) {
       removeDocMutation.mutate(documentId);
     }
   };
