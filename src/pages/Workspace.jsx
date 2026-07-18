@@ -139,7 +139,7 @@ const Workspace = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#13141a] overflow-hidden text-white font-sans">
+    <div className="flex h-[100dvh] w-full bg-[#13141a] overflow-hidden text-white font-sans">
       <Sidebar />
 
       {/* Main Content Area */}
@@ -202,18 +202,18 @@ const Workspace = () => {
             </div>
 
             {/* Document Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {isLoading ? (
-                <div className="col-span-full flex justify-center py-12 text-indigo-400">
+                <div className="col-span-full flex justify-center items-center h-64 text-indigo-500">
                   <Loader2 className="animate-spin" size={32} />
                 </div>
               ) : filteredDocs.length === 0 ? (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+                <div className="col-span-full flex flex-col justify-center items-center h-64 text-gray-500 bg-[#14151a] border border-white/5 rounded-2xl">
                   <FileText size={48} className="mb-4 opacity-50" />
-                  <p>No documents found matching your criteria.</p>
+                  <p>No documents found.</p>
                 </div>
               ) : (
-                filteredDocs.map((doc) => (
+                filteredDocs.map(doc => (
                   <DocumentCard 
                     key={doc.id}
                     doc={doc}
@@ -231,8 +231,8 @@ const Workspace = () => {
             </div>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l border-white/5 bg-[#121319] p-4 md:p-6 flex flex-col overflow-y-auto shrink-0">
+          {/* Right Sidebar (Hidden on mobile) */}
+          <div className="hidden lg:flex w-[300px] border-l border-white/5 bg-[#121319] p-6 flex-col overflow-y-auto shrink-0">
             {/* Storage Widget */}
             <div className="bg-[#181a22] border border-white/5 rounded-2xl p-5 mb-6">
               <div className="flex justify-between items-center mb-4">

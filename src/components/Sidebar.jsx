@@ -8,6 +8,7 @@ import {
 import { api } from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { formatFileSize } from '../lib/utils';
 
 const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const navigate = useNavigate();
@@ -28,6 +29,15 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
     queryKey: ['documents'],
     queryFn: async () => {
       const response = await api.get('/documents');
+      return response.data;
+    }
+  });
+
+  // Fetch Collections (for mobile stats)
+  const { data: collections } = useQuery({
+    queryKey: ['collections'],
+    queryFn: async () => {
+      const response = await api.get('/collections');
       return response.data;
     }
   });
@@ -96,6 +106,13 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const isWorkspace = location.pathname === '/workspace';
   const isCollections = location.pathname === '/collections';
 
+  // Mobile Stats Calculation
+  const totalStorage = 10 * 1024 * 1024; // 10MB limit
+  const usedStorage = documents?.reduce((acc, doc) => acc + (doc.file_size || 0), 0) || 0;
+  const storagePercentage = Math.min((usedStorage / totalStorage) * 100, 100);
+  const totalDocs = documents?.length || 0;
+  const totalCollections = collections?.length || 0;
+
   return (
     <>
       {/* Mobile Menu Button */}
@@ -115,7 +132,7 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`w-64 border-r border-white/5 bg-[#121319] flex flex-col justify-between shrink-0 h-screen font-sans text-white fixed md:relative z-50 md:z-0 top-0 left-0 transform ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
+      <div className={`w-64 border-r border-white/5 bg-[#121319] flex flex-col justify-between shrink-0 h-[100dvh] font-sans text-white fixed md:relative z-50 md:z-0 top-0 left-0 transform ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
         <div className="p-4 flex flex-col h-full overflow-hidden">
           {/* Logo & Close */}
           <div className="flex items-center justify-between px-2 mb-6 mt-2">
@@ -272,6 +289,40 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
           </a>
         </div>
         </div>
+        
+        {/* Mobile Storage Widget (lg:hidden) */}
+        <div className="px-4 pb-4 lg:hidden shrink-0 border-t border-white/5 pt-4">
+          <div className="bg-[#181a22] border border-white/5 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-xs font-semibold text-gray-200">Storage</h3>
+              <span className="text-[10px] text-indigo-400">Detailed Info</span>
+            </div>
+            
+            <div className="flex justify-between items-end mb-1.5">
+              <span className="text-[10px] text-gray-500">Used</span>
+              <span className="text-[10px] text-gray-400 font-medium">{formatFileSize(usedStorage)} of 10 MB</span>
+            </div>
+            
+            <div className="w-full h-1.5 bg-[#121319] rounded-full overflow-hidden border border-white/5 relative">
+              <div 
+                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                style={{ width: `${storagePercentage}%` }}
+              ></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5">
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-white">{totalDocs}</span>
+                <span className="text-[8px] uppercase tracking-wider text-gray-500">Docs</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-white">{totalCollections}</span>
+                <span className="text-[8px] uppercase tracking-wider text-gray-500">Collections</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Sidebar Footer Actions */}

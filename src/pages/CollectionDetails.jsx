@@ -121,7 +121,7 @@ const CollectionDetails = () => {
   }
 
   return (
-    <div className="flex h-screen bg-[#0b0c10] overflow-hidden font-sans text-white">
+    <div className="flex h-[100dvh] bg-[#0b0c10] overflow-hidden font-sans text-white">
       <Sidebar />
       
       <div className="flex-1 flex flex-col relative bg-[#0d0e12]">

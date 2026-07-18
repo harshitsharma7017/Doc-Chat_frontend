@@ -93,12 +93,12 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete, onAddToCollection }) =
       </div>
 
       {/* Card Content */}
-      <div className="p-5 flex flex-col flex-1 bg-[#181a22]">
+      <div className="p-3 md:p-5 flex flex-col flex-1 bg-[#181a22]">
         
-        <div className="flex justify-between items-start mb-3 min-h-[48px]">
+        <div className="flex justify-between items-start mb-2 md:mb-3 min-h-[40px] md:min-h-[48px]">
           {/* Fix 4 & 5: Single line for title, with native title attribute containing full string */}
           <h3 
-            className="text-[18px] font-bold text-white leading-tight line-clamp-2 pr-2" 
+            className="text-[14px] md:text-[18px] font-bold text-white leading-tight line-clamp-2 pr-2" 
             title={rawTitle}
           >
             {displayTitle}
@@ -111,21 +111,22 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete, onAddToCollection }) =
         {/* PDF Label Row */}
         <div>
           {isProcessing ? (
-            <span className="flex items-center gap-2 text-gray-500 text-[15px] font-semibold tracking-wide">
+            <span className="flex items-center gap-2 text-gray-500 text-[12px] md:text-[15px] font-semibold tracking-wide">
               <span className="w-2 h-2 bg-gray-500 rounded-full animate-ping ml-0.5"></span>
               Extracting...
             </span>
           ) : (
-            <span className="flex items-center gap-2.5 text-[15px] font-semibold text-gray-300 tracking-wide">
-              <FileText size={20} className="text-gray-400 -ml-0.5" />
+            <span className="flex items-center gap-2 md:gap-2.5 text-[12px] md:text-[15px] font-semibold text-gray-300 tracking-wide">
+              <FileText size={16} className="text-gray-400 -ml-0.5 md:hidden" />
+              <FileText size={20} className="text-gray-400 -ml-0.5 hidden md:block" />
               {doc.filename.toLowerCase().endsWith('.pdf') ? 'PDF' : 'DOCX'}
             </span>
           )}
         </div>
 
         {/* Meta footer */}
-        <div className="flex items-center justify-between text-[12px] text-gray-500 mt-4 mb-4">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between text-[10px] md:text-[12px] text-gray-500 mt-2 md:mt-4 mb-2 md:mb-4 gap-1 md:gap-0">
+          <div className="flex items-center gap-1 md:gap-2">
             <span>{isProcessing ? '--' : (doc.pages || '--')} Pages</span>
             <span>•</span>
             <span>{formatFileSize(doc.file_size)}</span>
@@ -135,25 +136,25 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete, onAddToCollection }) =
 
         {/* Action Buttons Row */}
         {isReady && (
-          <div className="flex items-center gap-4 mt-2 mb-1 border-t border-white/5 pt-4">
+          <div className="flex items-center gap-2 md:gap-4 mt-auto border-t border-white/5 pt-3 md:pt-4">
             {/* Item 1: Add to Collection */}
             {onAddToCollection && (
               <button 
                 onClick={(e) => { e.stopPropagation(); onAddToCollection(doc.id); }}
-                className="w-10 h-10 rounded-full bg-[#252630] hover:bg-[#323340] flex items-center justify-center text-emerald-400 border border-white/5 transition-colors shadow-sm"
+                className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-[#252630] hover:bg-[#323340] flex items-center justify-center text-emerald-400 border border-white/5 transition-colors shadow-sm"
                 title="Add to Collection"
               >
-                <FolderPlus size={14} strokeWidth={2.5} />
+                <FolderPlus size={14} strokeWidth={2.5} className="md:w-[14px] md:h-[14px] w-[12px] h-[12px]" />
               </button>
             )}
             
             {/* Item 2: Edit */}
             <button 
-              onClick={onRename}
-              className="w-10 h-10 rounded-full bg-[#252630] hover:bg-[#323340] flex items-center justify-center text-indigo-400 border border-white/5 transition-colors shadow-sm"
+              onClick={(e) => { e.stopPropagation(); onRename(e); }}
+              className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-[#252630] hover:bg-[#323340] flex items-center justify-center text-indigo-400 border border-white/5 transition-colors shadow-sm"
               title="Rename Document"
             >
-              <Edit2 size={14} strokeWidth={2.5} />
+              <Edit2 size={14} strokeWidth={2.5} className="md:w-[14px] md:h-[14px] w-[12px] h-[12px]" />
             </button>
             
             {/* Item 3: Download (Disabled state if no URL) */}
@@ -165,19 +166,19 @@ const DocumentCard = ({ doc, onClick, onRename, onDelete, onAddToCollection }) =
                 }
               }}
               disabled={!doc.s3_url}
-              className={`w-10 h-10 rounded-full flex items-center justify-center border border-white/5 transition-colors shadow-sm ${doc.s3_url ? 'bg-[#252630] hover:bg-[#323340] text-blue-400' : 'bg-[#1e1f28] text-gray-600 cursor-not-allowed border-transparent'}`}
+              className={`w-7 h-7 md:w-10 md:h-10 rounded-full flex items-center justify-center border border-white/5 transition-colors shadow-sm ${doc.s3_url ? 'bg-[#252630] hover:bg-[#323340] text-blue-400' : 'bg-[#1e1f28] text-gray-600 cursor-not-allowed border-transparent'}`}
               title="Download"
             >
-              <Download size={14} strokeWidth={2.5} />
+              <Download size={14} strokeWidth={2.5} className="md:w-[14px] md:h-[14px] w-[12px] h-[12px]" />
             </button>
             
             {/* Item 4: Delete */}
             <button 
-              onClick={onDelete}
-              className="w-10 h-10 rounded-full bg-[#252630] hover:bg-red-950/40 flex items-center justify-center text-red-400 border border-white/5 transition-colors shadow-sm"
+              onClick={(e) => { e.stopPropagation(); onDelete(e); }}
+              className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-[#252630] hover:bg-red-950/40 flex items-center justify-center text-red-400 border border-white/5 transition-colors shadow-sm"
               title="Delete Document"
             >
-              <Trash2 size={14} strokeWidth={2.5} />
+              <Trash2 size={14} strokeWidth={2.5} className="md:w-[14px] md:h-[14px] w-[12px] h-[12px]" />
             </button>
           </div>
         )}
