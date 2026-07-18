@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   LogOut, FileText, MessageSquare, Loader2, Trash2, 
-  LayoutGrid, Folder, Search, Settings, Upload, User, Plus, Edit2
+  LayoutGrid, Folder, Search, Settings, Upload, User, Plus, Edit2, Menu, X
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
@@ -16,6 +16,12 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const { showToast } = useToast();
   const confirm = useConfirm();
   const [deletingId, setDeletingId] = useState(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Close sidebar on route change on mobile
+  React.useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   // Fetch Documents using TanStack Query
   const { data: documents, isLoading: isLoadingDocs, isError: isErrorDocs } = useQuery({
@@ -91,24 +97,52 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
   const isCollections = location.pathname === '/collections';
 
   return (
-    <div className="w-64 border-r border-white/5 bg-[#121319] flex flex-col justify-between shrink-0 h-screen font-sans text-white">
-      <div className="p-4 flex flex-col h-full overflow-hidden">
-        {/* Logo */}
+    <>
+      {/* Mobile Menu Button */}
+      <button 
+        onClick={() => setIsMobileOpen(true)}
+        className="md:hidden fixed top-3 left-4 z-40 p-2.5 bg-[#181a22] border border-white/10 rounded-xl text-white shadow-lg hover:bg-[#252630] transition-colors"
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
         <div 
-          className="flex items-center gap-3 px-2 mb-6 mt-2 cursor-pointer" 
-          onClick={() => {
-            navigate('/dashboard');
-            if (onDocumentClick) onDocumentClick(null);
-          }}
-        >
-          <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/20">
-            <FileText size={18} className="text-white" />
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`w-64 border-r border-white/5 bg-[#121319] flex flex-col justify-between shrink-0 h-screen font-sans text-white fixed md:relative z-50 md:z-0 top-0 left-0 transform ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <div className="p-4 flex flex-col h-full overflow-hidden">
+          {/* Logo & Close */}
+          <div className="flex items-center justify-between px-2 mb-6 mt-2">
+            <div 
+              className="flex items-center gap-3 cursor-pointer" 
+              onClick={() => {
+                navigate('/dashboard');
+                if (onDocumentClick) onDocumentClick(null);
+                setIsMobileOpen(false);
+              }}
+            >
+              <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/20">
+                <FileText size={18} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-sm font-bold text-white tracking-wide">Doc-Chat</h1>
+                <p className="text-[10px] text-gray-400 tracking-wider">Document Intelligence</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setIsMobileOpen(false)}
+              className="md:hidden text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              <X size={20} />
+            </button>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-white tracking-wide">Doc-Chat</h1>
-            <p className="text-[10px] text-gray-400 tracking-wider">Document Intelligence</p>
-          </div>
-        </div>
 
         {/* Upload Document Button */}
         <button 
@@ -273,8 +307,9 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
             title="Logout" 
           />
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -78,7 +78,7 @@ const ChatInterface = ({ document, onClose }) => {
   return (
     <div className="flex flex-col h-full w-full bg-white/5 rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative backdrop-blur-xl">
       {/* Header */}
-      <div className="bg-indigo-900/30 border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+      <div className="bg-indigo-900/30 border-b border-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-3 overflow-hidden pr-4">
           <div className="bg-indigo-500 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20 shrink-0">
             <Bot size={20} />
@@ -105,11 +105,11 @@ const ChatInterface = ({ document, onClose }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar relative">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar relative">
         {messages.map((msg, idx) => (
           <div 
             key={idx} 
-            className={`flex gap-4 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+            className={`flex gap-3 md:gap-4 max-w-[95%] md:max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
           >
             {/* Avatar */}
             <div className={`shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
@@ -140,7 +140,7 @@ const ChatInterface = ({ document, onClose }) => {
         
         {/* Loading Indicator */}
         {isLoading && (
-          <div className="flex gap-4 max-w-[85%]">
+          <div className="flex gap-3 md:gap-4 max-w-[95%] md:max-w-[85%]">
             <div className="shrink-0 h-8 w-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-indigo-300">
               <Bot size={16} />
             </div>
@@ -168,8 +168,8 @@ const ChatInterface = ({ document, onClose }) => {
             onChange={handleInput}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            placeholder="Ask a question about the document... (Shift+Enter for new line)"
-            className="w-full bg-white/5 border border-white/10 text-white placeholder-white/30 rounded-2xl pl-5 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none custom-scrollbar min-h-[54px]"
+            placeholder="Ask a question about the document..."
+            className="w-full bg-white/5 border border-white/10 text-white placeholder-white/30 rounded-2xl pl-4 md:pl-5 pr-14 py-3 md:py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-[13px] md:text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none custom-scrollbar min-h-[50px] md:min-h-[54px]"
             rows={1}
           />
           <button

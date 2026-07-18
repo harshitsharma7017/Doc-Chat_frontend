@@ -46,16 +46,16 @@ const Dashboard = () => {
           <ChatInterface document={activeDocument} onClose={() => setActiveDocumentId(null)} />
         ) : (
           <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-            <div className="max-w-4xl mx-auto w-full p-8 pt-10 flex flex-col">
+            <div className="max-w-4xl mx-auto w-full p-5 pt-16 md:p-8 md:pt-10 flex flex-col">
               {/* Header */}
-              <div className="flex justify-between items-center mb-16 border-b border-white/5 pb-4">
+              <div className="flex justify-between items-center mb-8 md:mb-16 border-b border-white/5 pb-4">
                 <h2 className="text-[15px] font-medium text-gray-200">New Analysis</h2>
                 <HelpCircle size={18} className="text-gray-400 cursor-pointer hover:text-white transition-colors" />
               </div>
 
               {/* Hero Section */}
-              <div className="text-center mb-14">
-                <h1 className="text-5xl font-bold text-white mb-5 tracking-tight leading-[1.15]">
+              <div className="text-center mb-10 md:mb-14">
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 md:mb-5 tracking-tight leading-[1.15]">
                   Understand Your <br /> Documents <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">Instantly</span>
                 </h1>
                 <p className="text-gray-400 text-[15px] max-w-lg mx-auto leading-relaxed">
@@ -69,9 +69,9 @@ const Dashboard = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="max-w-[576px] mx-auto w-full">
-                <h3 className="text-[11px] font-semibold text-gray-500 tracking-wider mb-4 uppercase">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="max-w-[576px] mx-auto w-full mb-10">
+                <h3 className="text-[11px] font-semibold text-gray-500 tracking-wider mb-4 uppercase text-center md:text-left">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-[#14151a] border border-white/5 p-5 rounded-xl flex gap-4 hover:border-white/10 hover:bg-[#1a1b22] transition-colors cursor-pointer group">
                     <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500/20 transition-colors">
                       <FileText size={18} className="text-indigo-400" />
@@ -99,7 +99,7 @@ const Dashboard = () => {
 
       {/* Right Sidebar (Only visible when no document is active) */}
       {!activeDocumentId && (
-        <div className="w-[340px] border-l border-white/5 bg-[#121319] flex flex-col p-8 overflow-y-auto shrink-0">
+        <div className="hidden lg:flex w-[340px] border-l border-white/5 bg-[#121319] flex-col p-8 overflow-y-auto shrink-0">
           <h3 className="text-[15px] font-medium text-white mb-10">Getting Started</h3>
           
           <div className="relative border-l border-white/10 ml-3.5 space-y-10 mb-12">

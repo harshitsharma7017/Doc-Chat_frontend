@@ -146,23 +146,23 @@ const Workspace = () => {
       <div className="flex-1 flex flex-col relative h-full bg-[#0d0e12]">
         
         {/* Top Navbar */}
-        <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#121319]">
-          <div className="flex space-x-6 h-full">
-            <button className="h-full border-b-2 border-indigo-500 text-indigo-400 font-medium px-1 flex items-center transition-colors text-[15px]">
+        <div className="h-16 border-b border-white/5 flex items-center justify-between px-4 pl-14 md:px-8 bg-[#121319]">
+          <div className="flex space-x-2 md:space-x-6 h-full">
+            <button className="h-full border-b-2 border-indigo-500 text-indigo-400 font-medium px-1 flex items-center transition-colors text-[14px] md:text-[15px]">
               Documents
             </button>
-            <button className="h-full border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium px-1 flex items-center transition-colors text-[15px]">
+            <button className="hidden sm:flex h-full border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium px-1 items-center transition-colors text-[14px] md:text-[15px]">
               Analysis
             </button>
-            <button className="h-full border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium px-1 flex items-center transition-colors text-[15px]">
+            <button className="hidden sm:flex h-full border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium px-1 items-center transition-colors text-[14px] md:text-[15px]">
               History
             </button>
           </div>
 
-          <div className="flex items-center space-x-6 text-sm text-gray-400">
-            <button className="hover:text-white transition-colors">Share</button>
-            <button className="hover:text-white transition-colors">Export</button>
-            <div className="w-px h-4 bg-white/10 mx-2"></div>
+          <div className="flex items-center space-x-4 md:space-x-6 text-sm text-gray-400">
+            <button className="hidden sm:block hover:text-white transition-colors">Share</button>
+            <button className="hidden sm:block hover:text-white transition-colors">Export</button>
+            <div className="hidden sm:block w-px h-4 bg-white/10 mx-2"></div>
             <button className="hover:text-white transition-colors relative">
               <Bell size={18} />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 rounded-full"></span>
@@ -171,14 +171,14 @@ const Workspace = () => {
         </div>
 
         {/* Content Wrapper */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Main Library Section */}
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">My Library</h1>
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 tracking-tight">My Library</h1>
 
             {/* Search and Filters */}
-            <div className="flex items-center space-x-4 mb-8">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+              <div className="relative w-full md:flex-1 md:max-w-md">
                 <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input 
                   type="text" 
@@ -188,7 +188,7 @@ const Workspace = () => {
                   className="w-full bg-[#181a22] border border-white/10 text-sm text-white placeholder-gray-500 rounded-full py-2.5 pl-10 pr-4 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 />
               </div>
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2 md:space-x-2 w-full md:w-auto">
                 {['All', 'PDF', 'Research', 'Contracts'].map(filter => (
                   <button 
                     key={filter}
@@ -232,7 +232,7 @@ const Workspace = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-[300px] border-l border-white/5 bg-[#121319] p-6 flex flex-col overflow-y-auto shrink-0">
+          <div className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l border-white/5 bg-[#121319] p-4 md:p-6 flex flex-col overflow-y-auto shrink-0">
             {/* Storage Widget */}
             <div className="bg-[#181a22] border border-white/5 rounded-2xl p-5 mb-6">
               <div className="flex justify-between items-center mb-4">
