@@ -78,12 +78,12 @@ const ChatInterface = ({ document, onClose }) => {
   return (
     <div className="flex flex-col h-full w-full bg-white/5 rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative backdrop-blur-xl">
       {/* Header */}
-      <div className="bg-indigo-900/30 border-b border-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-10">
-        <div className="flex items-center gap-3 overflow-hidden pr-4">
+      <div className="bg-indigo-900/30 border-b border-white/10 pl-14 pr-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-10">
+        <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
           <div className="bg-indigo-500 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20 shrink-0">
             <Bot size={20} />
           </div>
-          <div className="truncate flex flex-col">
+          <div className="flex flex-col min-w-0 flex-1">
             <h2 className="font-bold text-white text-lg leading-tight truncate" title={document.preferred_name || document.filename}>
               {document.preferred_name || document.filename}
             </h2>
@@ -97,7 +97,7 @@ const ChatInterface = ({ document, onClose }) => {
         </div>
         <button 
           onClick={onClose}
-          className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all shrink-0"
+          className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all shrink-0 ml-2"
           title="Close Chat"
         >
           <X size={20} />
@@ -122,7 +122,7 @@ const ChatInterface = ({ document, onClose }) => {
             </div>
 
             {/* Bubble */}
-            <div className={`px-5 py-3 rounded-2xl shadow-sm leading-relaxed text-sm ${
+            <div className={`px-5 py-3 rounded-2xl shadow-sm leading-relaxed text-sm break-words ${
               msg.role === 'user' 
                 ? 'bg-indigo-500 text-white rounded-tr-sm whitespace-pre-wrap' 
                 : msg.role === 'error'

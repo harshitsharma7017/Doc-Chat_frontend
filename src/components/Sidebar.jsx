@@ -295,7 +295,15 @@ const Sidebar = ({ onDocumentClick, activeDocumentId }) => {
           <div className="bg-[#181a22] border border-white/5 rounded-xl p-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-xs font-semibold text-gray-200">Storage</h3>
-              <span className="text-[10px] text-indigo-400">Detailed Info</span>
+              <button 
+                onClick={() => {
+                  navigate('/storage');
+                  setIsMobileOpen(false);
+                }}
+                className="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+              >
+                Detailed Info
+              </button>
             </div>
             
             <div className="flex justify-between items-end mb-1.5">
